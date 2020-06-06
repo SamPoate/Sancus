@@ -1,0 +1,24 @@
+body {
+    background: $primary-background-color;
+}
+
+h1,
+h2,
+h3,
+p,
+a {
+    color: $primary-font-color;
+}
+
+.ui.secondary.pointing.menu {
+    border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+
+    .item,
+    .active.item {
+        color: $primary-font-color;
+    }
+
+    .active.item {
+        border-color: #fff;
+    }
+}

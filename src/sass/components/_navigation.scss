@@ -1,0 +1,7 @@
+.ui.secondary.pointing.menu {
+    a.item:hover,
+    .active.item:hover {
+        color: $primary-color;
+        border-color: $primary-color;
+    }
+}

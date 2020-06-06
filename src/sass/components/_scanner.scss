@@ -1,0 +1,23 @@
+.scanner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .card {
+        margin: 0 auto;
+
+        .description {
+            text-align: center;
+        }
+
+        .buttons,
+        .button {
+            width: 100%;
+        }
+    }
+
+    .button.red {
+        width: 290px;
+        margin: 30px auto 0;
+    }
+}
