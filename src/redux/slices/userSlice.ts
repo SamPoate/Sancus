@@ -4,40 +4,29 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AppThunk, AppDispatch } from '../store';
 import { IUser } from '../../types';
 
-const initialState: IUser[] = [
-    {
-        id: '123-123-123',
-        name: 'Fred Johnson',
-        description: 'Absolute Legend'
-    },
-    {
-        id: '123-321-321',
-        name: 'Luke Evans',
-        description: 'Medium Legend'
-    }
-];
+const initialState: IUser = {
+    id: '123-123-123',
+    role: 'member',
+    name: 'Fred Johnson'
+};
 
 const userSlice = createSlice({
-    name: 'users',
+    name: 'members',
     initialState,
     reducers: {
-        //CRUD
-        addUser(state, { payload }: PayloadAction<IUser>) {
-            state.push(payload);
+        updateUser(state, { payload }: PayloadAction<IUser>) {
+            state = payload;
+        },
+        updateRole(state, { payload }: PayloadAction<string>) {
+            state.role = payload;
         }
     }
 });
 
-export const addUser = (name: string, description: string): AppThunk => async (
+export const updateRole = (role: string): AppThunk => async (
     dispatch: AppDispatch
 ) => {
-    const newUser: IUser = {
-        id: Math.random().toString(36).substr(2, 9), // https://gist.github.com/gordonbrander/2230317,
-        name,
-        description
-    };
-
-    dispatch(userSlice.actions.addUser(newUser));
+    dispatch(userSlice.actions.updateRole(role));
 };
 
 export default userSlice.reducer;

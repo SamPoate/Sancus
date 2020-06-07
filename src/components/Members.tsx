@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../redux/rootReducer';
-import { addUser } from '../redux/slices/userSlice';
+import { addMember } from '../redux/slices/memberSlice';
 import { Header, Icon, Card, Table, Form, Button } from 'semantic-ui-react';
 
 interface MembersProps {}
 
 const Members: React.FC<MembersProps> = () => {
     const dispatch = useDispatch();
-    const users = useSelector((state: RootState) => state.users);
+    const members = useSelector((state: RootState) => state.members);
     const [name, setName] = useState<string>('');
     const [description, setDescription] = useState<string>('');
 
-    const addMember = () => {
+    const submitMember = () => {
         if (name && description) {
-            dispatch(addUser(name, description));
+            dispatch(addMember(name, description));
             setName('');
             setDescription('');
         }
@@ -40,9 +40,9 @@ const Members: React.FC<MembersProps> = () => {
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                    {users.map(user => (
-                        <Table.Row key={user.id}>
-                            <Table.Cell>{user.name}</Table.Cell>
+                    {members.map(member => (
+                        <Table.Row key={member.id}>
+                            <Table.Cell>{member.name}</Table.Cell>
                             <Table.Cell>1</Table.Cell>
                             <Table.Cell>5</Table.Cell>
                             <Table.Cell textAlign='right'>
@@ -53,7 +53,7 @@ const Members: React.FC<MembersProps> = () => {
                 </Table.Body>
             </Table>
             <Card className='add-member'>
-                <Form onSubmit={addMember}>
+                <Form onSubmit={submitMember}>
                     <Form.Input
                         value={name}
                         onChange={e => setName(e.target.value)}

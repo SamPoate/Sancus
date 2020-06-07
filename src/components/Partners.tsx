@@ -2,30 +2,28 @@ import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../redux/rootReducer';
 import { updatePartner } from '../redux/slices/partnerSlice';
-import { Header, Icon, Table, Card, Form, Button } from 'semantic-ui-react';
+import {
+    Header,
+    Icon,
+    Input,
+    Table,
+    Card,
+    Form,
+    Button
+} from 'semantic-ui-react';
 import { IPartner } from '../types';
 
 interface PartnersProps {}
 
 const Partners: React.FC<PartnersProps> = () => {
+    const [search, setSearch] = useState<string>('');
     const dispatch = useDispatch();
     const partners = useSelector((state: RootState) => state.partners);
     const [partnerEdit, setPartnerEdit] = useState<IPartner | null>(null);
 
     const onSubmit = () => {
-        if (
-            partnerEdit &&
-            partnerEdit.id &&
-            partnerEdit.name &&
-            partnerEdit.totalDiscountsUsed
-        ) {
-            dispatch(
-                updatePartner(
-                    partnerEdit.id,
-                    partnerEdit.name,
-                    partnerEdit.totalDiscountsUsed
-                )
-            );
+        if (partnerEdit) {
+            dispatch(updatePartner(partnerEdit));
             setPartnerEdit(null);
         }
     };
@@ -40,6 +38,11 @@ const Partners: React.FC<PartnersProps> = () => {
                     fontSize: '3em'
                 }}
             />
+            <Input
+                placeholder='Search...'
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+            />
             <Table color='green'>
                 <Table.Header>
                     <Table.Row>
@@ -50,23 +53,29 @@ const Partners: React.FC<PartnersProps> = () => {
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                    {partners.map(partner => (
-                        <Table.Row key={partner.id}>
-                            <Table.Cell>{partner.name}</Table.Cell>
-                            <Table.Cell>1</Table.Cell>
-                            <Table.Cell>
-                                {partner.totalDiscountsUsed}
-                            </Table.Cell>
-                            <Table.Cell textAlign='right'>
-                                <Icon
-                                    name='edit'
-                                    color='blue'
-                                    size='large'
-                                    onClick={() => setPartnerEdit(partner)}
-                                />
-                            </Table.Cell>
-                        </Table.Row>
-                    ))}
+                    {partners
+                        .filter(partner =>
+                            partner.name
+                                .toLowerCase()
+                                .includes(search.toLowerCase())
+                        )
+                        .map(partner => (
+                            <Table.Row key={partner.id}>
+                                <Table.Cell>{partner.name}</Table.Cell>
+                                <Table.Cell>1</Table.Cell>
+                                <Table.Cell>
+                                    {partner.totalDiscountsUsed}
+                                </Table.Cell>
+                                <Table.Cell textAlign='right'>
+                                    <Icon
+                                        name='edit'
+                                        color='blue'
+                                        size='large'
+                                        onClick={() => setPartnerEdit(partner)}
+                                    />
+                                </Table.Cell>
+                            </Table.Row>
+                        ))}
                 </Table.Body>
             </Table>
             {partnerEdit && (

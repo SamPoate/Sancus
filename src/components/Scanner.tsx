@@ -1,7 +1,19 @@
 import React, { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../redux/rootReducer';
+import { incrementPartnerTotalDiscounts } from '../redux/slices/partnerSlice';
 // import _ from 'lodash';
-import { Grid, Header, Form, Card, Image, Button } from 'semantic-ui-react';
-import { IUser } from '../types';
+import {
+    Grid,
+    Header,
+    Form,
+    Card,
+    Image,
+    Input,
+    Button,
+    Segment
+} from 'semantic-ui-react';
+import { IMember } from '../types';
 
 interface ScannerProps {}
 
@@ -9,28 +21,26 @@ const Scanner: React.FC<ScannerProps> = () => {
     const [searchValue, setSearchValue] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [showUsers, setShowUsers] = useState<boolean>(false);
-    const [searchResults, setSearchResults] = useState<Array<IUser>>([]);
+    const [searchResults, setSearchResults] = useState<Array<IMember>>([]);
+    const [itemId, setItemId] = useState<string>('');
+    const { user, members, partners, items } = useSelector(
+        (state: RootState) => state
+    );
+    const dispatch = useDispatch();
 
-    const users = [
-        {
-            name: 'Fred Johnson',
-            description: 'Absolute Legend',
-            id: '123-123-123'
-        },
-        {
-            name: 'Luke Evans',
-            description: 'Medium Legend',
-            id: '123-321-321'
-        }
-    ];
+    const userPartner = partners.find(
+        partner =>
+            partner.users &&
+            partner.users.some(partnerUser => partnerUser === user.id)
+    );
 
     const search = () => {
         setIsLoading(true);
 
-        const filteredSeachResults = users.filter(
-            user =>
-                user.id.includes(searchValue) ||
-                user.name.toLowerCase().includes(searchValue)
+        const filteredSeachResults = members.filter(
+            member =>
+                member.id.includes(searchValue) ||
+                member.name.toLowerCase().includes(searchValue)
         );
 
         if (filteredSeachResults.length >= 1) {
@@ -41,8 +51,10 @@ const Scanner: React.FC<ScannerProps> = () => {
         setIsLoading(false);
     };
 
-    const submitDiscount = (user: IUser) => {
-        console.log(user);
+    const submitDiscount = (member: IMember) => {
+        if (userPartner) {
+            dispatch(incrementPartnerTotalDiscounts(userPartner.id));
+        }
     };
 
     return (
@@ -60,8 +72,8 @@ const Scanner: React.FC<ScannerProps> = () => {
                 <Grid columns={1}>
                     {showUsers ? (
                         <>
-                            {searchResults.map(user => (
-                                <Grid.Row key={user.id}>
+                            {searchResults.map(member => (
+                                <Grid.Row key={member.id}>
                                     <Card>
                                         <Card.Content>
                                             <Image
@@ -70,12 +82,12 @@ const Scanner: React.FC<ScannerProps> = () => {
                                                 src='img/am-logo.png'
                                             />
                                             <Card.Header>
-                                                {user.name}
+                                                {member.name}
                                             </Card.Header>
                                             <Card.Meta>
-                                                {user.description}
+                                                {member.description}
                                                 <br />
-                                                ID: {user.id}
+                                                ID: {member.id}
                                             </Card.Meta>
                                             <Card.Description>
                                                 <strong>Apply Discount?</strong>
@@ -86,7 +98,7 @@ const Scanner: React.FC<ScannerProps> = () => {
                                                 <Button
                                                     color='green'
                                                     onClick={() =>
-                                                        submitDiscount(user)
+                                                        submitDiscount(member)
                                                     }
                                                 >
                                                     Apply
@@ -102,6 +114,29 @@ const Scanner: React.FC<ScannerProps> = () => {
                             >
                                 Cancel
                             </Button>
+
+                            {/* Temp item finder */}
+                            <div className='temp-partner-info'>
+                                <Input
+                                    placeholder='Item Id'
+                                    value={itemId}
+                                    onChange={e => setItemId(e.target.value)}
+                                />
+                                <Segment>
+                                    <ul>
+                                        {items
+                                            .filter(item =>
+                                                item.id.includes(itemId)
+                                            )
+                                            .map(item => (
+                                                <li key={item.id}>
+                                                    {item.name} -{' '}
+                                                    {item.totalDiscount}
+                                                </li>
+                                            ))}
+                                    </ul>
+                                </Segment>
+                            </div>
                         </>
                     ) : (
                         <Grid.Row>

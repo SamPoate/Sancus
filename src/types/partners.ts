@@ -1,9 +1,9 @@
-import { IItem } from './items';
-
 export interface IPartner {
-    id?: string;
-    name?: string;
+    id: string;
+    name: string;
+    partnerLevel: string | 'basic';
     logo?: string;
-    currentDiscountedItems?: Array<IItem>;
-    totalDiscountsUsed?: number;
+    users?: Array<string>;
+    currentDiscountedItems: Array<string>;
+    totalDiscountsUsed: number | 0;
 }

@@ -1,88 +1,116 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from './redux/rootReducer';
+import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import { Container, Menu } from 'semantic-ui-react';
 import './sass/main.scss';
 
-import { Home, Partners, Members, Scanner } from './components';
-
-let userType = 'admin';
+import {
+    Home,
+    Overview,
+    Partners,
+    Members,
+    Items,
+    Scanner,
+    Profile
+} from './components';
 
 const App: React.FC = () => {
-    const [activeItem, setActiveItem] = useState<string>('home');
+    const { user } = useSelector((state: RootState) => state);
 
     let menuItems: Array<string> = [];
-    let ActivePage: React.ComponentType<unknown> | null = null;
     const loggedIn: boolean = true;
 
-    switch (userType) {
+    switch (user.role) {
         case 'admin':
-            menuItems = ['home', 'partners', 'members', 'admin'];
+            menuItems = [
+                'home',
+                'overview',
+                'members',
+                'partners',
+                'items',
+                'admin'
+            ];
             break;
 
         case 'partner':
-            menuItems = ['home', 'scanner'];
+            menuItems = ['home', 'items', 'scanner'];
+            break;
+
+        case 'member':
+            menuItems = ['home', 'items'];
             break;
     }
 
-    switch (activeItem) {
-        case 'home':
-            ActivePage = Home;
-            break;
-
-        case 'partners':
-            ActivePage = Partners;
-            break;
-
-        case 'members':
-            ActivePage = Members;
-            break;
-
-        case 'scanner':
-            ActivePage = Scanner;
-            break;
-
-        default:
-            ActivePage = null;
-            break;
-    }
-
+    //TODO: Fix menu item highlight on href change
     return (
-        <main id='home'>
-            <Container>
-                <Menu pointing secondary>
-                    {menuItems.map(menuItem => (
-                        <Menu.Item
-                            key={menuItem}
-                            name={menuItem}
-                            active={activeItem === menuItem}
-                            onClick={() => setActiveItem(menuItem)}
-                        />
-                    ))}
-                    <Menu.Menu position='right'>
-                        {loggedIn ? (
-                            <>
-                                <Menu.Item
-                                    name='profile'
-                                    active={activeItem === 'profile'}
-                                    onClick={() => setActiveItem('profile')}
-                                />
-                                <Menu.Item
-                                    name='logout'
-                                    active={activeItem === 'logout'}
-                                    onClick={() => setActiveItem('logout')}
-                                />
-                            </>
-                        ) : (
+        <Router>
+            <main id='home'>
+                <Container>
+                    <Menu pointing secondary>
+                        {menuItems.map(menuItem => (
                             <Menu.Item
-                                name='login'
-                                active={activeItem === 'logout'}
-                                onClick={() => setActiveItem('logout')}
+                                key={menuItem}
+                                name={menuItem}
+                                active={window.location.href.includes(menuItem)}
+                                as={Link}
+                                to={`/${menuItem}`}
                             />
-                        )}
-                    </Menu.Menu>
-                </Menu>
-                {ActivePage && <ActivePage />}
-            </Container>
-        </main>
+                        ))}
+                        <Menu.Menu position='right'>
+                            {loggedIn ? (
+                                <>
+                                    <Menu.Item
+                                        name='profile'
+                                        active={window.location.href.includes(
+                                            'profile'
+                                        )}
+                                        as={Link}
+                                        to='/profile'
+                                    />
+                                    <Menu.Item
+                                        name='logout'
+                                        active={window.location.href.includes(
+                                            'logout'
+                                        )}
+                                    />
+                                </>
+                            ) : (
+                                <Menu.Item
+                                    name='login'
+                                    active={window.location.href.includes(
+                                        'login'
+                                    )}
+                                />
+                            )}
+                        </Menu.Menu>
+                    </Menu>
+                    <Switch>
+                        <Route path='/partners'>
+                            <Partners />
+                        </Route>
+                        <Route path='/overview'>
+                            <Overview />
+                        </Route>
+                        <Route path='/members'>
+                            <Members />
+                        </Route>
+                        <Route path='/items'>
+                            <Items />
+                        </Route>
+                        <Route path='/scanner'>
+                            <Scanner />
+                        </Route>
+                        <Route path='/profile'>
+                            <Profile />
+                        </Route>
+                        <Route path='/'>
+                            <Home />
+                        </Route>
+                    </Switch>
+                </Container>
+            </main>
+        </Router>
     );
 };
 
