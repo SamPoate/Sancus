@@ -3,7 +3,6 @@ export interface IPartner {
     name: string;
     partnerLevel: string | 'basic';
     logo?: string;
-    users?: Array<string>;
-    currentDiscountedItems: Array<string>;
-    totalDiscountsUsed: number | 0;
+    itemsInStock: Array<string>;
+    totalPointsAllocated: number | 0;
 }

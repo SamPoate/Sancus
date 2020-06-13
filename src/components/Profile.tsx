@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../redux/rootReducer';
 import { updateRole } from '../redux/slices/userSlice';
@@ -18,7 +19,9 @@ interface ProfileProps {}
 
 const Profile: React.FC<ProfileProps> = () => {
     const dispatch = useDispatch();
-    const { user } = useSelector((state: RootState) => state);
+    const { user, members } = useSelector((state: RootState) => state);
+
+    const userMember = members.find(member => member.id === user.memberId);
 
     return (
         <Container>
@@ -37,27 +40,32 @@ const Profile: React.FC<ProfileProps> = () => {
                         <Card>
                             <Image src='img/abe.jpg' wrapped ui={false} />
                             <Card.Content>
-                                <Card.Header>Abraham</Card.Header>
+                                <Card.Header>{user.name}</Card.Header>
                                 <Card.Meta>
-                                    Joined on November 6, 1860
+                                    Joined on{' '}
+                                    {moment(user.joinDate, 'dd-mm-yyyy').format(
+                                        'Do MMMM YYYY'
+                                    )}
                                 </Card.Meta>
                                 <Card.Description>
-                                    Abraham is a comedian living in Washington.
+                                    {user.name} is a comedian living in
+                                    Washington.
                                 </Card.Description>
                             </Card.Content>
                             <Card.Content extra>
                                 <Icon name='money bill alternate' />
-                                10 Loyal Bucks
+                                {userMember ? userMember.points / 10 : 0} Loyal
+                                Bucks
                             </Card.Content>
                         </Card>
                     </Grid.Column>
                     <Grid.Column>
                         <Segment textAlign='center' inverted>
                             <Statistic color='teal' inverted>
-                                <Statistic.Label>
-                                    Total amount saved
-                                </Statistic.Label>
-                                <Statistic.Value>£3.82</Statistic.Value>
+                                <Statistic.Label>Total Points</Statistic.Label>
+                                <Statistic.Value>
+                                    {userMember && userMember.points}
+                                </Statistic.Value>
                             </Statistic>
                         </Segment>
                         <Segment textAlign='center' inverted>
@@ -65,7 +73,7 @@ const Profile: React.FC<ProfileProps> = () => {
                                 <Statistic.Label>
                                     Amount of scans
                                 </Statistic.Label>
-                                <Statistic.Value>372</Statistic.Value>
+                                <Statistic.Value>16</Statistic.Value>
                             </Statistic>
                         </Segment>
                     </Grid.Column>

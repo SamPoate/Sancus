@@ -13,7 +13,7 @@ import {
 
 interface HomeProps {}
 
-const Home: React.FC<HomeProps> = () => {
+const Overview: React.FC<HomeProps> = () => {
     const { partners, members } = useSelector((state: RootState) => state);
     const partnerDictionary = {
         platinum: 'Platinum',
@@ -21,6 +21,10 @@ const Home: React.FC<HomeProps> = () => {
         bronze: 'Bronze',
         basic: 'Basic'
     };
+
+    const sortedPartners = partners.sort(
+        (left, right) => right.totalPointsAllocated - left.totalPointsAllocated
+    );
 
     return (
         <>
@@ -41,7 +45,7 @@ const Home: React.FC<HomeProps> = () => {
                     inverted
                 />
                 <Grid.Row>
-                    {partners.map(partner => {
+                    {sortedPartners.map(partner => {
                         return (
                             <Grid.Column key={partner.id}>
                                 <Card style={{ width: '100%' }}>
@@ -71,20 +75,24 @@ const Home: React.FC<HomeProps> = () => {
                                                 <Table.Body>
                                                     <Table.Row>
                                                         <Table.Cell>
-                                                            Overall usage
+                                                            Given Points
                                                         </Table.Cell>
                                                         <Table.Cell>
                                                             {
-                                                                partner.totalDiscountsUsed
+                                                                partner.totalPointsAllocated
                                                             }
                                                         </Table.Cell>
                                                     </Table.Row>
                                                     <Table.Row>
                                                         <Table.Cell>
-                                                            Amount discounted
+                                                            Total Items
                                                         </Table.Cell>
                                                         <Table.Cell>
-                                                            £23.24
+                                                            {
+                                                                partner
+                                                                    .itemsInStock
+                                                                    .length
+                                                            }
                                                         </Table.Cell>
                                                     </Table.Row>
                                                 </Table.Body>
@@ -118,7 +126,7 @@ const Home: React.FC<HomeProps> = () => {
                     <Table.Row>
                         <Table.HeaderCell>Member</Table.HeaderCell>
                         <Table.HeaderCell>Used at</Table.HeaderCell>
-                        <Table.HeaderCell>Total Discount</Table.HeaderCell>
+                        <Table.HeaderCell>Total Points Earnt</Table.HeaderCell>
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
@@ -128,7 +136,7 @@ const Home: React.FC<HomeProps> = () => {
                                 <Table.Row key={member.id}>
                                     <Table.Cell>{member.name}</Table.Cell>
                                     <Table.Cell>{member.name}</Table.Cell>
-                                    <Table.Cell>£12.22</Table.Cell>
+                                    <Table.Cell>120</Table.Cell>
                                 </Table.Row>
                             )
                     )}
@@ -138,4 +146,4 @@ const Home: React.FC<HomeProps> = () => {
     );
 };
 
-export default Home;
+export default Overview;

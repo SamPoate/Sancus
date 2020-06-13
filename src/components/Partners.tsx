@@ -64,7 +64,7 @@ const Partners: React.FC<PartnersProps> = () => {
                                 <Table.Cell>{partner.name}</Table.Cell>
                                 <Table.Cell>1</Table.Cell>
                                 <Table.Cell>
-                                    {partner.totalDiscountsUsed}
+                                    {partner.totalPointsAllocated}
                                 </Table.Cell>
                                 <Table.Cell textAlign='right'>
                                     <Icon
@@ -98,18 +98,18 @@ const Partners: React.FC<PartnersProps> = () => {
                             fluid
                         />
                         <Form.Input
-                            value={partnerEdit.totalDiscountsUsed}
+                            value={partnerEdit.totalPointsAllocated}
                             onChange={e =>
                                 setPartnerEdit({
                                     ...partnerEdit,
-                                    totalDiscountsUsed: parseInt(
+                                    totalPointsAllocated: parseInt(
                                         e.target.value,
                                         10
                                     )
                                 })
                             }
-                            label='Discounts'
-                            placeholder='Total Discounts'
+                            label='Points'
+                            placeholder='Point value of item'
                             // error={{
                             //     content: 'Please enter your first name',
                             //     pointing: 'below'

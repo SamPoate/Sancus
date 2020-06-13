@@ -7,11 +7,14 @@ import { IUser } from '../../types';
 const initialState: IUser = {
     id: '123-123-123',
     role: 'member',
-    name: 'Fred Johnson'
+    name: 'Abraham',
+    joinDate: '06-11-1860',
+    memberId: '123-123-123',
+    partnerId: '222-222-333'
 };
 
 const userSlice = createSlice({
-    name: 'members',
+    name: 'user',
     initialState,
     reducers: {
         updateUser(state, { payload }: PayloadAction<IUser>) {
@@ -25,8 +28,6 @@ const userSlice = createSlice({
 
 export const updateRole = (role: string): AppThunk => async (
     dispatch: AppDispatch
-) => {
-    dispatch(userSlice.actions.updateRole(role));
-};
+) => dispatch(userSlice.actions.updateRole(role));
 
 export default userSlice.reducer;

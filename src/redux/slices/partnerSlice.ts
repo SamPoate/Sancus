@@ -4,28 +4,32 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AppThunk, AppDispatch } from '../store';
 import { IPartner } from '../../types';
 
-export interface IAddItem {
+interface IAddItem {
     id: string;
     partnerId: string;
 }
 
+interface IAddPoints {
+    partnerId: string;
+    points: number;
+}
+
 const initialState: IPartner[] = [
     {
-        id: Math.random().toString(36).substr(2, 9),
+        id: '111-222-333',
         name: 'Apple Moments',
         partnerLevel: 'platinum',
         logo: 'img/am-logo.png',
-        currentDiscountedItems: ['312cddcc22s'],
-        totalDiscountsUsed: 4
+        itemsInStock: ['312cddcc22s'],
+        totalPointsAllocated: 5
     },
     {
-        id: Math.random().toString(36).substr(2, 9),
+        id: '222-222-333',
         name: 'Letter Office',
         partnerLevel: 'gold',
         logo: 'img/po-logo.png',
-        users: ['123-123-123'],
-        currentDiscountedItems: ['123aba11'],
-        totalDiscountsUsed: 1
+        itemsInStock: ['123aba11', '12efaba11', '123aba1111'],
+        totalPointsAllocated: 10
     }
 ];
 
@@ -43,26 +47,24 @@ const partnerSlice = createSlice({
                         partner.name = payload.name;
                     }
 
-                    if (payload.totalDiscountsUsed) {
-                        partner.totalDiscountsUsed = payload.totalDiscountsUsed;
+                    if (payload.totalPointsAllocated) {
+                        partner.totalPointsAllocated =
+                            payload.totalPointsAllocated;
                     }
                 }
 
                 return stateArray;
             }, []);
         },
-        incrementPartnerTotalDiscounts(
-            state,
-            { payload }: PayloadAction<string>
-        ) {
-            state[
-                state.findIndex(partner => partner.id === payload)
-            ].totalDiscountsUsed += 1;
-        },
         addPartnerItem(state, { payload }: PayloadAction<IAddItem>) {
             state[
                 state.findIndex(partner => partner.id === payload.partnerId)
-            ].currentDiscountedItems.push(payload.id);
+            ].itemsInStock.push(payload.id);
+        },
+        addPartnerPoints(state, { payload }: PayloadAction<IAddPoints>) {
+            state[
+                state.findIndex(member => member.id === payload.partnerId)
+            ].totalPointsAllocated += payload.points;
         },
         destroyPartner(state, { payload }: PayloadAction<string>) {
             state = state.filter(partner => partner.id === payload);
@@ -80,8 +82,8 @@ export const addPartner = (
         name,
         partnerLevel,
         logo,
-        currentDiscountedItems: [],
-        totalDiscountsUsed: 0
+        itemsInStock: [],
+        totalPointsAllocated: 0
     };
 
     dispatch(partnerSlice.actions.addPartner(newPartner));
@@ -91,16 +93,18 @@ export const updatePartner = (partner: IPartner): AppThunk => async (
     dispatch: AppDispatch
 ) => dispatch(partnerSlice.actions.updatePartner(partner));
 
-export const incrementPartnerTotalDiscounts = (
-    partnerId: string
-): AppThunk => async (dispatch: AppDispatch) =>
-    dispatch(partnerSlice.actions.incrementPartnerTotalDiscounts(partnerId));
-
 export const addPartnerItem = (
     id: string,
     partnerId: string
 ): AppThunk => async (dispatch: AppDispatch) =>
     dispatch(partnerSlice.actions.addPartnerItem({ id, partnerId }));
+
+export const addPartnerPoints = (
+    partnerId: string,
+    points: number
+): AppThunk => async (dispatch: AppDispatch) => {
+    dispatch(partnerSlice.actions.addPartnerPoints({ partnerId, points }));
+};
 
 export const destroyPartner = (id: string): AppThunk => async (
     dispatch: AppDispatch

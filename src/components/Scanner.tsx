@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../redux/rootReducer';
-import { incrementPartnerTotalDiscounts } from '../redux/slices/partnerSlice';
+import { addMemberPoints } from '../redux/slices/memberSlice';
+import { addPartnerPoints } from '../redux/slices/partnerSlice';
 // import _ from 'lodash';
 import {
     Grid,
@@ -11,9 +12,10 @@ import {
     Image,
     Input,
     Button,
-    Segment
+    Segment,
+    List
 } from 'semantic-ui-react';
-import { IMember } from '../types';
+import { IMember, IItem } from '../types';
 
 interface ScannerProps {}
 
@@ -22,17 +24,17 @@ const Scanner: React.FC<ScannerProps> = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [showUsers, setShowUsers] = useState<boolean>(false);
     const [searchResults, setSearchResults] = useState<Array<IMember>>([]);
+    const [selectedMember, setSelectedMember] = useState<IMember | null>(null);
     const [itemId, setItemId] = useState<string>('');
+    const [scannedItems, setScannedItems] = useState<Array<IItem>>([]);
+
+    const dispatch = useDispatch();
     const { user, members, partners, items } = useSelector(
         (state: RootState) => state
     );
-    const dispatch = useDispatch();
 
-    const userPartner = partners.find(
-        partner =>
-            partner.users &&
-            partner.users.some(partnerUser => partnerUser === user.id)
-    );
+    const searchedItem = items.find(item => item.id === itemId);
+    const userPartner = partners.find(partner => partner.id === user.partnerId);
 
     const search = () => {
         setIsLoading(true);
@@ -46,16 +48,107 @@ const Scanner: React.FC<ScannerProps> = () => {
         if (filteredSeachResults.length >= 1) {
             setSearchResults(filteredSeachResults);
             setShowUsers(true);
+            setSearchValue('');
         }
 
         setIsLoading(false);
     };
 
-    const submitDiscount = (member: IMember) => {
-        if (userPartner) {
-            dispatch(incrementPartnerTotalDiscounts(userPartner.id));
-        }
+    const selectItem = (item: IItem) => {
+        if (scannedItems.some(scannedItem => scannedItem.id === item.id))
+            return;
+
+        setScannedItems([...scannedItems, item]);
+        setItemId('');
     };
+
+    const submitPoints = (member: IMember) => {
+        const totalPoints = scannedItems.reduce(
+            (totalPoints, currentItem) => (totalPoints += currentItem.points),
+            0
+        );
+
+        dispatch(addMemberPoints(member.id, totalPoints));
+        if (userPartner)
+            dispatch(addPartnerPoints(userPartner.id, totalPoints));
+
+        setSelectedMember(null);
+        setShowUsers(false);
+    };
+
+    if (selectedMember) {
+        return (
+            <>
+                <Header
+                    as='h1'
+                    content='Apply Points'
+                    inverted
+                    textAlign='center'
+                    style={{
+                        fontSize: '3em'
+                    }}
+                />
+                {scannedItems.length > 0 && (
+                    <>
+                        <Segment>
+                            <List>
+                                {scannedItems.map(item => (
+                                    <List.Item key={item.id}>
+                                        {item.name} -{' '}
+                                        <strong>{item.points}</strong> Points
+                                    </List.Item>
+                                ))}
+                            </List>
+                        </Segment>
+                        <Button
+                            color='green'
+                            onClick={() => submitPoints(selectedMember)}
+                        >
+                            Apply Points
+                        </Button>
+                    </>
+                )}
+                <div className='item-list'>
+                    <Input
+                        placeholder='Item Id'
+                        value={itemId}
+                        onChange={e => setItemId(e.target.value)}
+                    />
+                    {searchedItem && (
+                        <Card>
+                            <Card.Content>
+                                <Card.Header>{searchedItem.name}</Card.Header>
+                                <Card.Meta>
+                                    {searchedItem.description}
+                                    <br />
+                                    Points: {searchedItem.points}
+                                </Card.Meta>
+                                <Card.Description></Card.Description>
+                            </Card.Content>
+                            <Card.Content extra>
+                                <div className='ui buttons'>
+                                    <Button
+                                        color='green'
+                                        onClick={() => selectItem(searchedItem)}
+                                        style={{ width: '100%' }}
+                                    >
+                                        Select Item
+                                    </Button>
+                                </div>
+                            </Card.Content>
+                        </Card>
+                    )}
+                </div>
+                <List>
+                    {items.map(item => (
+                        <List.Item key={item.id}>
+                            {item.name} - <strong>{item.id}</strong>
+                        </List.Item>
+                    ))}
+                </List>
+            </>
+        );
+    }
 
     return (
         <>
@@ -89,19 +182,19 @@ const Scanner: React.FC<ScannerProps> = () => {
                                                 <br />
                                                 ID: {member.id}
                                             </Card.Meta>
-                                            <Card.Description>
-                                                <strong>Apply Discount?</strong>
-                                            </Card.Description>
+                                            <Card.Description></Card.Description>
                                         </Card.Content>
                                         <Card.Content extra>
                                             <div className='ui buttons'>
                                                 <Button
                                                     color='green'
                                                     onClick={() =>
-                                                        submitDiscount(member)
+                                                        setSelectedMember(
+                                                            member
+                                                        )
                                                     }
                                                 >
-                                                    Apply
+                                                    Select User
                                                 </Button>
                                             </div>
                                         </Card.Content>
@@ -114,29 +207,6 @@ const Scanner: React.FC<ScannerProps> = () => {
                             >
                                 Cancel
                             </Button>
-
-                            {/* Temp item finder */}
-                            <div className='temp-partner-info'>
-                                <Input
-                                    placeholder='Item Id'
-                                    value={itemId}
-                                    onChange={e => setItemId(e.target.value)}
-                                />
-                                <Segment>
-                                    <ul>
-                                        {items
-                                            .filter(item =>
-                                                item.id.includes(itemId)
-                                            )
-                                            .map(item => (
-                                                <li key={item.id}>
-                                                    {item.name} -{' '}
-                                                    {item.totalDiscount}
-                                                </li>
-                                            ))}
-                                    </ul>
-                                </Segment>
-                            </div>
                         </>
                     ) : (
                         <Grid.Row>
@@ -144,7 +214,7 @@ const Scanner: React.FC<ScannerProps> = () => {
                                 <Form.Field>
                                     <Form.Input
                                         icon='user'
-                                        placeholder='Search...'
+                                        placeholder='Search Members...'
                                         value={searchValue}
                                         onChange={e =>
                                             setSearchValue(e.target.value)

@@ -15,32 +15,28 @@ import {
 } from 'semantic-ui-react';
 import { IItem } from '../types';
 
-interface MembersProps {}
+interface ItemProps {}
 
-const Members: React.FC<MembersProps> = () => {
+const Items: React.FC<ItemProps> = () => {
     const dispatch = useDispatch();
     const { user, items, partners } = useSelector((state: RootState) => state);
     const [id, setId] = useState<string>('');
     const [name, setName] = useState<string>('');
     const [description, setDescription] = useState<string>('');
-    const [totalDiscount, setTotalDiscount] = useState<number>(0);
+    const [points, setPoints] = useState<number>(0);
     const [activeItem, setActiveItem] = useState<IItem | null>(null);
 
     let displayedItems: Array<IItem> = [];
-    const userPartner = partners.find(
-        partner =>
-            partner.users &&
-            partner.users.some(partnerUser => partnerUser === user.id)
-    );
+    const userPartner = partners.find(partner => partner.id === user.partnerId);
 
     const submitItem = () => {
-        if (id && name && description && totalDiscount && userPartner) {
-            dispatch(addItem({ id, name, description, totalDiscount }));
+        if (id && name && description && points && userPartner) {
+            dispatch(addItem({ id, name, description, points }));
             dispatch(addPartnerItem(id, userPartner.id));
             setId('');
             setName('');
             setDescription('');
-            setTotalDiscount(0);
+            setPoints(0);
         }
     };
 
@@ -50,12 +46,11 @@ const Members: React.FC<MembersProps> = () => {
             break;
 
         case 'partner':
-            if (userPartner && userPartner.currentDiscountedItems) {
+            if (userPartner && userPartner.itemsInStock) {
                 displayedItems = items.filter(item =>
-                    userPartner.currentDiscountedItems.includes(item.id)
+                    userPartner.itemsInStock.includes(item.id)
                 );
             }
-
             break;
     }
 
@@ -63,7 +58,7 @@ const Members: React.FC<MembersProps> = () => {
         <>
             <Header
                 as='h1'
-                content='Discounted Items'
+                content='Item List'
                 inverted
                 style={{
                     fontSize: '3em'
@@ -74,7 +69,7 @@ const Members: React.FC<MembersProps> = () => {
                     <Table.Row>
                         <Table.HeaderCell>Name</Table.HeaderCell>
                         <Table.HeaderCell>Description</Table.HeaderCell>
-                        <Table.HeaderCell>Total Discount (%)</Table.HeaderCell>
+                        <Table.HeaderCell>Points</Table.HeaderCell>
                         {user.role === 'member' ? (
                             <Table.HeaderCell textAlign='right'>
                                 Partner
@@ -113,11 +108,11 @@ const Members: React.FC<MembersProps> = () => {
                                     </Table.Cell>
                                     <Table.Cell>
                                         <Input
-                                            value={activeItem.totalDiscount}
+                                            value={activeItem.points}
                                             onChange={e =>
                                                 setActiveItem({
                                                     ...activeItem,
-                                                    totalDiscount:
+                                                    points:
                                                         parseInt(
                                                             e.target.value,
                                                             10
@@ -148,7 +143,7 @@ const Members: React.FC<MembersProps> = () => {
                             <Table.Row key={item.id}>
                                 <Table.Cell>{item.name}</Table.Cell>
                                 <Table.Cell>{item.description}</Table.Cell>
-                                <Table.Cell>{item.totalDiscount}</Table.Cell>
+                                <Table.Cell>{item.points}</Table.Cell>
                                 {user.role === 'member' ? (
                                     <Table.Cell textAlign='center'>
                                         <Image
@@ -156,7 +151,7 @@ const Members: React.FC<MembersProps> = () => {
                                             size='mini'
                                             src={
                                                 partners.find(partner =>
-                                                    partner.currentDiscountedItems.includes(
+                                                    partner.itemsInStock.includes(
                                                         item.id
                                                     )
                                                 )?.logo
@@ -204,12 +199,10 @@ const Members: React.FC<MembersProps> = () => {
                             fluid
                         />
                         <Form.Input
-                            label='Discount (%)'
-                            value={totalDiscount}
+                            label='Points'
+                            value={points}
                             onChange={e =>
-                                setTotalDiscount(
-                                    parseFloat(e.target.value) || 0
-                                )
+                                setPoints(parseFloat(e.target.value) || 0)
                             }
                             fluid
                         />
@@ -223,4 +216,4 @@ const Members: React.FC<MembersProps> = () => {
     );
 };
 
-export default Members;
+export default Items;
