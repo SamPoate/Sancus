@@ -68,9 +68,10 @@ const Scanner: React.FC<ScannerProps> = () => {
             0
         );
 
-        dispatch(addMemberPoints(member.id, totalPoints));
-        if (userPartner)
+        if (userPartner) {
+            dispatch(addMemberPoints(member.id, totalPoints, userPartner.id));
             dispatch(addPartnerPoints(userPartner.id, totalPoints));
+        }
 
         setSelectedMember(null);
         setShowUsers(false);

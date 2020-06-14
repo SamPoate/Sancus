@@ -21,7 +21,7 @@ const initialState: IPartner[] = [
         partnerLevel: 'platinum',
         logo: 'img/am-logo.png',
         itemsInStock: ['312cddcc22s'],
-        totalPointsAllocated: 5
+        totalPointsAllocated: 0
     },
     {
         id: '222-222-333',
@@ -29,7 +29,7 @@ const initialState: IPartner[] = [
         partnerLevel: 'gold',
         logo: 'img/po-logo.png',
         itemsInStock: ['123aba11', '12efaba11', '123aba1111'],
-        totalPointsAllocated: 10
+        totalPointsAllocated: 0
     }
 ];
 

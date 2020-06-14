@@ -1,5 +1,6 @@
 /* eslint-disable no-restricted-globals */
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import moment from 'moment';
 
 import { AppThunk, AppDispatch } from '../store';
 import { IMember } from '../../types';
@@ -7,6 +8,7 @@ import { IMember } from '../../types';
 interface IAddPoints {
     memberId: string;
     points: number;
+    partnerId: string;
 }
 
 const initialState: IMember[] = [
@@ -32,19 +34,27 @@ const userSlice = createSlice({
             state.push(payload);
         },
         addMemberPoints(state, { payload }: PayloadAction<IAddPoints>) {
-            state[
-                state.findIndex(member => member.id === payload.memberId)
-            ].points += payload.points;
+            const partnerIndex = state.findIndex(
+                member => member.id === payload.memberId
+            );
+
+            state[partnerIndex].points += payload.points;
+            state[partnerIndex].lastTransaction = {
+                partnerId: payload.partnerId,
+                points: payload.points,
+                date: moment().format()
+            };
         }
     }
 });
 
 export const addMember = (
+    id: string,
     name: string,
     description: string
 ): AppThunk => async (dispatch: AppDispatch) => {
     const newMember: IMember = {
-        id: Math.random().toString(36).substr(2, 9), // https://gist.github.com/gordonbrander/2230317,
+        id,
         name,
         description,
         points: 0
@@ -55,9 +65,12 @@ export const addMember = (
 
 export const addMemberPoints = (
     memberId: string,
-    points: number
+    points: number,
+    partnerId: string
 ): AppThunk => async (dispatch: AppDispatch) => {
-    dispatch(userSlice.actions.addMemberPoints({ memberId, points }));
+    dispatch(
+        userSlice.actions.addMemberPoints({ memberId, points, partnerId })
+    );
 };
 
 export default userSlice.reducer;

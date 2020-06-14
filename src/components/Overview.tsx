@@ -10,21 +10,42 @@ import {
     Table,
     Image
 } from 'semantic-ui-react';
+import { IMember } from '../types';
 
 interface HomeProps {}
 
 const Overview: React.FC<HomeProps> = () => {
     const { partners, members } = useSelector((state: RootState) => state);
-    const partnerDictionary = {
+    const partnerLevels = {
         platinum: 'Platinum',
         gold: 'Gold',
         bronze: 'Bronze',
         basic: 'Basic'
     };
 
-    const sortedPartners = partners.sort(
-        (left, right) => right.totalPointsAllocated - left.totalPointsAllocated
+    const sortedPartners = [...partners].sort(
+        (a, b) => b.totalPointsAllocated - a.totalPointsAllocated
     );
+
+    const sortedMembers = [...members].sort((a, b) => {
+        if (a.lastTransaction && b.lastTransaction) {
+            return a.lastTransaction.date < b.lastTransaction.date
+                ? -1
+                : a.lastTransaction.date > b.lastTransaction.date
+                ? 1
+                : 0;
+        }
+        return 0;
+    });
+
+    const findPartnerName = (member: IMember) => {
+        const partner = partners.find(
+            partner => partner.id === member.lastTransaction?.partnerId
+        );
+
+        if (partner) return partner.name;
+        return null;
+    };
 
     return (
         <>
@@ -45,73 +66,64 @@ const Overview: React.FC<HomeProps> = () => {
                     inverted
                 />
                 <Grid.Row>
-                    {sortedPartners.map(partner => {
-                        return (
-                            <Grid.Column key={partner.id}>
-                                <Card style={{ width: '100%' }}>
-                                    <Card.Content>
-                                        <Image
-                                            floated='right'
-                                            size='mini'
-                                            src={partner.logo}
-                                        />
-                                        <Card.Header>
-                                            {partner.name}
-                                        </Card.Header>
-                                        <Card.Meta
-                                            style={{
-                                                color: partner.partnerLevel
-                                            }}
-                                        >
-                                            {
-                                                partnerDictionary[
-                                                    partner.partnerLevel
-                                                ]
-                                            }{' '}
-                                            Member
-                                        </Card.Meta>
-                                        <Card.Description>
-                                            <Table color='pink'>
-                                                <Table.Body>
-                                                    <Table.Row>
-                                                        <Table.Cell>
-                                                            Given Points
-                                                        </Table.Cell>
-                                                        <Table.Cell>
-                                                            {
-                                                                partner.totalPointsAllocated
-                                                            }
-                                                        </Table.Cell>
-                                                    </Table.Row>
-                                                    <Table.Row>
-                                                        <Table.Cell>
-                                                            Total Items
-                                                        </Table.Cell>
-                                                        <Table.Cell>
-                                                            {
-                                                                partner
-                                                                    .itemsInStock
-                                                                    .length
-                                                            }
-                                                        </Table.Cell>
-                                                    </Table.Row>
-                                                </Table.Body>
-                                            </Table>
-                                        </Card.Description>
-                                    </Card.Content>
-                                    <Card.Content extra>
-                                        <Button
-                                            inverted
-                                            color='blue'
-                                            style={{ width: '100%' }}
-                                        >
-                                            Info
-                                        </Button>
-                                    </Card.Content>
-                                </Card>
-                            </Grid.Column>
-                        );
-                    })}
+                    {sortedPartners.map(partner => (
+                        <Grid.Column key={partner.id}>
+                            <Card style={{ width: '100%' }}>
+                                <Card.Content>
+                                    <Image
+                                        floated='right'
+                                        size='mini'
+                                        src={partner.logo}
+                                    />
+                                    <Card.Header>{partner.name}</Card.Header>
+                                    <Card.Meta
+                                        style={{
+                                            color: partner.partnerLevel
+                                        }}
+                                    >
+                                        {partnerLevels[partner.partnerLevel]}{' '}
+                                        Member
+                                    </Card.Meta>
+                                    <Card.Description>
+                                        <Table color='pink'>
+                                            <Table.Body>
+                                                <Table.Row>
+                                                    <Table.Cell>
+                                                        Given Points
+                                                    </Table.Cell>
+                                                    <Table.Cell>
+                                                        {
+                                                            partner.totalPointsAllocated
+                                                        }
+                                                    </Table.Cell>
+                                                </Table.Row>
+                                                <Table.Row>
+                                                    <Table.Cell>
+                                                        Total Items
+                                                    </Table.Cell>
+                                                    <Table.Cell>
+                                                        {
+                                                            partner.itemsInStock
+                                                                .length
+                                                        }
+                                                    </Table.Cell>
+                                                </Table.Row>
+                                            </Table.Body>
+                                        </Table>
+                                    </Card.Description>
+                                </Card.Content>
+                                <Card.Content extra>
+                                    <Button
+                                        inverted
+                                        color='blue'
+                                        style={{ width: '100%' }}
+                                    >
+                                        Info
+                                    </Button>
+                                </Card.Content>
+                            </Card>
+                        </Grid.Column>
+                    ))}
                 </Grid.Row>
             </Grid>
             <Divider />
@@ -130,13 +142,18 @@ const Overview: React.FC<HomeProps> = () => {
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                    {members.map(
+                    {sortedMembers.map(
                         (member, index) =>
-                            index < 3 && (
+                            index < 3 &&
+                            member.lastTransaction && (
                                 <Table.Row key={member.id}>
                                     <Table.Cell>{member.name}</Table.Cell>
-                                    <Table.Cell>{member.name}</Table.Cell>
-                                    <Table.Cell>120</Table.Cell>
+                                    <Table.Cell>
+                                        {findPartnerName(member)}
+                                    </Table.Cell>
+                                    <Table.Cell>
+                                        {member.lastTransaction.points}
+                                    </Table.Cell>
                                 </Table.Row>
                             )
                     )}
