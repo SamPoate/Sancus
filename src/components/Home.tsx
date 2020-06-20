@@ -1,12 +1,14 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../redux/rootReducer';
-import { Header, Divider } from 'semantic-ui-react';
+import { updateRole } from '../redux/slices/userSlice';
+import { Header, Divider, Grid, Dropdown } from 'semantic-ui-react';
 
 interface HomeProps {}
 
 const Home: React.FC<HomeProps> = () => {
     const { user } = useSelector((state: RootState) => state);
+    const dispatch = useDispatch();
 
     return (
         <>
@@ -20,6 +22,27 @@ const Home: React.FC<HomeProps> = () => {
             />
             <Divider />
             <p>Welcome {user.name}</p>
+            <Divider />
+            <Grid>
+                <Grid.Row>
+                    <Grid.Column>
+                        <Dropdown
+                            placeholder='Testing Role'
+                            search
+                            selection
+                            value={user.role}
+                            onChange={(_, { value }) =>
+                                value && dispatch(updateRole(value.toString()))
+                            }
+                            options={[
+                                { value: 'admin', text: 'Admin' },
+                                { value: 'partner', text: 'Partner' },
+                                { value: 'member', text: 'Member' }
+                            ]}
+                        />
+                    </Grid.Column>
+                </Grid.Row>
+            </Grid>
         </>
     );
 };

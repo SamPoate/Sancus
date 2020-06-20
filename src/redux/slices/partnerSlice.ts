@@ -1,8 +1,9 @@
-/* eslint-disable no-restricted-globals */
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import moment from 'moment';
 
 import { AppThunk, AppDispatch } from '../store';
 import { IPartner } from '../../types';
+import { partners } from '../../fake-database';
 
 interface IAddItem {
     id: string;
@@ -14,24 +15,7 @@ interface IAddPoints {
     points: number;
 }
 
-const initialState: IPartner[] = [
-    {
-        id: '111-222-333',
-        name: 'Apple Moments',
-        partnerLevel: 'platinum',
-        logo: 'img/am-logo.png',
-        itemsInStock: ['312cddcc22s'],
-        totalPointsAllocated: 0
-    },
-    {
-        id: '222-222-333',
-        name: 'Letter Office',
-        partnerLevel: 'gold',
-        logo: 'img/po-logo.png',
-        itemsInStock: ['123aba11', '12efaba11', '123aba1111'],
-        totalPointsAllocated: 0
-    }
-];
+const initialState: IPartner[] = partners;
 
 const partnerSlice = createSlice({
     name: 'partners',
@@ -51,6 +35,15 @@ const partnerSlice = createSlice({
                         partner.totalPointsAllocated =
                             payload.totalPointsAllocated;
                     }
+
+                    if (payload.items) {
+                        partner.items = payload.items;
+                    }
+
+                    //admin check
+                    if (payload.partnerLevel) {
+                        partner.partnerLevel = payload.partnerLevel;
+                    }
                 }
 
                 return stateArray;
@@ -59,7 +52,7 @@ const partnerSlice = createSlice({
         addPartnerItem(state, { payload }: PayloadAction<IAddItem>) {
             state[
                 state.findIndex(partner => partner.id === payload.partnerId)
-            ].itemsInStock.push(payload.id);
+            ].items.push(payload.id);
         },
         addPartnerPoints(state, { payload }: PayloadAction<IAddPoints>) {
             state[
@@ -80,9 +73,10 @@ export const addPartner = (
     const newPartner: IPartner = {
         id: Math.random().toString(36).substr(2, 9), // https://gist.github.com/gordonbrander/2230317,
         name,
+        joinDate: moment().format('DD-MM-YY'),
         partnerLevel,
         logo,
-        itemsInStock: [],
+        items: [],
         totalPointsAllocated: 0
     };
 

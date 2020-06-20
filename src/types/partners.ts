@@ -1,8 +1,9 @@
 export interface IPartner {
     id: string;
     name: string;
+    joinDate: string;
     partnerLevel: string | 'basic';
     logo?: string;
-    itemsInStock: Array<string>;
+    items: Array<string>;
     totalPointsAllocated: number | 0;
 }

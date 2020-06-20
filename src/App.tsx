@@ -13,10 +13,13 @@ import {
     Members,
     Items,
     Scanner,
-    Profile
+    Profile,
+    Admin
 } from './components';
 
-const App: React.FC = () => {
+interface AppProps {}
+
+const App: React.StatelessComponent<AppProps> = () => {
     const [activeMenuItem, setActiveMenuItem] = useState<string>('home');
     const { user, admin } = useSelector((state: RootState) => state);
     const dispatch = useDispatch();
@@ -121,6 +124,9 @@ const App: React.FC = () => {
                         </Route>
                         <Route path='/profile'>
                             <Profile />
+                        </Route>
+                        <Route path='/admin'>
+                            <Admin />
                         </Route>
                         <Route path='/'>
                             <Home />

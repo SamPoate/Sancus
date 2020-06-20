@@ -1,8 +1,7 @@
 import React from 'react';
 import moment from 'moment';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '../redux/rootReducer';
-import { updateRole } from '../redux/slices/userSlice';
 import {
     Container,
     Header,
@@ -11,14 +10,12 @@ import {
     Image,
     Icon,
     Segment,
-    Statistic,
-    Dropdown
+    Statistic
 } from 'semantic-ui-react';
 
 interface ProfileProps {}
 
 const Profile: React.FC<ProfileProps> = () => {
-    const dispatch = useDispatch();
     const { user, members } = useSelector((state: RootState) => state);
 
     const userMember = members.find(member => member.id === user.memberId);
@@ -76,24 +73,6 @@ const Profile: React.FC<ProfileProps> = () => {
                                 <Statistic.Value>16</Statistic.Value>
                             </Statistic>
                         </Segment>
-                    </Grid.Column>
-                </Grid.Row>
-                <Grid.Row>
-                    <Grid.Column>
-                        <Dropdown
-                            placeholder='Testing Role'
-                            search
-                            selection
-                            value={user.role}
-                            onChange={(_, { value }) =>
-                                value && dispatch(updateRole(value.toString()))
-                            }
-                            options={[
-                                { value: 'admin', text: 'Admin' },
-                                { value: 'partner', text: 'Partner' },
-                                { value: 'member', text: 'Member' }
-                            ]}
-                        />
                     </Grid.Column>
                 </Grid.Row>
             </Grid>

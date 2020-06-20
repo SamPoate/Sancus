@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../redux/rootReducer';
-import { updatePartner } from '../redux/slices/partnerSlice';
 import {
     Header,
     Icon,
@@ -12,21 +11,33 @@ import {
     Button
 } from 'semantic-ui-react';
 import { IPartner } from '../types';
+import { PartnerEditor } from './PartnerEditor';
+import { addPartner } from '../redux/slices/partnerSlice';
 
 interface PartnersProps {}
 
 const Partners: React.FC<PartnersProps> = () => {
     const [search, setSearch] = useState<string>('');
-    const dispatch = useDispatch();
-    const partners = useSelector((state: RootState) => state.partners);
+    const [name, setName] = useState<string>('');
+    const [partnerLevel, setPartnerLevel] = useState<string>('basic');
+    const [logo, setLogo] = useState('img/apple-logo.jpg');
     const [partnerEdit, setPartnerEdit] = useState<IPartner | null>(null);
 
-    const onSubmit = () => {
-        if (partnerEdit) {
-            dispatch(updatePartner(partnerEdit));
-            setPartnerEdit(null);
+    const partners = useSelector((state: RootState) => state.partners);
+    const dispatch = useDispatch();
+
+    const submitPartner = () => {
+        if (name && partnerLevel) {
+            dispatch(addPartner(name, logo, partnerLevel));
+            setName('');
+            setPartnerLevel('basic');
         }
     };
+
+    if (partnerEdit)
+        return (
+            <PartnerEditor partner={partnerEdit} closeEditor={setPartnerEdit} />
+        );
 
     return (
         <>
@@ -78,50 +89,43 @@ const Partners: React.FC<PartnersProps> = () => {
                         ))}
                 </Table.Body>
             </Table>
-            {partnerEdit && (
-                <Card className='partner-edit'>
-                    <Form onSubmit={onSubmit}>
-                        <Form.Input
-                            value={partnerEdit.name}
-                            onChange={e =>
-                                setPartnerEdit({
-                                    ...partnerEdit,
-                                    name: e.target.value
-                                })
-                            }
-                            label="Partners's Name"
-                            placeholder='Name'
-                            // error={{
-                            //     content: 'Please enter your first name',
-                            //     pointing: 'below'
-                            // }}
-                            fluid
-                        />
-                        <Form.Input
-                            value={partnerEdit.totalPointsAllocated}
-                            onChange={e =>
-                                setPartnerEdit({
-                                    ...partnerEdit,
-                                    totalPointsAllocated: parseInt(
-                                        e.target.value,
-                                        10
-                                    )
-                                })
-                            }
-                            label='Points'
-                            placeholder='Point value of item'
-                            // error={{
-                            //     content: 'Please enter your first name',
-                            //     pointing: 'below'
-                            // }}
-                            fluid
-                        />
-                        <Button type='submit' color='blue'>
-                            Update Partner
-                        </Button>
-                    </Form>
-                </Card>
-            )}
+            <Card className='add-member'>
+                <Form onSubmit={submitPartner}>
+                    <Form.Input
+                        value={name}
+                        onChange={e => setName(e.target.value)}
+                        label="Partner's Name"
+                        placeholder='Jimmy Bobs Fishing Supplies'
+                        fluid
+                    />
+                    <Form.Input
+                        fluid
+                        label='Logo URL'
+                        value={logo}
+                        onChange={e => setLogo(e.target.value)}
+                    />
+                    <Form.Select
+                        label='Partner Level'
+                        placeholder='Their Partner Level'
+                        value={partnerLevel}
+                        onChange={(_, { value }) =>
+                            typeof value === 'string' && setPartnerLevel(value)
+                        }
+                        options={[
+                            {
+                                value: 'platinum',
+                                text: 'Platinum'
+                            },
+                            { value: 'gold', text: 'Gold' },
+                            { value: 'silver', text: 'Silver' },
+                            { value: 'basic', text: 'Basic' }
+                        ]}
+                    />
+                    <Button type='submit' color='green'>
+                        Add Partner
+                    </Button>
+                </Form>
+            </Card>
         </>
     );
 };

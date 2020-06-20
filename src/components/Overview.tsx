@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/rootReducer';
 import {
@@ -10,15 +10,18 @@ import {
     Table,
     Image
 } from 'semantic-ui-react';
-import { IMember } from '../types';
+import { IMember, IPartner } from '../types';
+import { PartnerEditor } from './PartnerEditor';
 
 interface HomeProps {}
 
 const Overview: React.FC<HomeProps> = () => {
+    const [partnerEditor, setPartnerEditor] = useState<IPartner | null>(null);
     const { partners, members } = useSelector((state: RootState) => state);
     const partnerLevels = {
         platinum: 'Platinum',
         gold: 'Gold',
+        silver: 'Silver',
         bronze: 'Bronze',
         basic: 'Basic'
     };
@@ -40,12 +43,21 @@ const Overview: React.FC<HomeProps> = () => {
 
     const findPartnerName = (member: IMember) => {
         const partner = partners.find(
-            partner => partner.id === member.lastTransaction?.partnerId
+            (partner: IPartner) =>
+                partner.id === member.lastTransaction?.partnerId
         );
 
         if (partner) return partner.name;
         return null;
     };
+
+    if (partnerEditor)
+        return (
+            <PartnerEditor
+                partner={partnerEditor}
+                closeEditor={setPartnerEditor}
+            />
+        );
 
     return (
         <>
@@ -66,64 +78,80 @@ const Overview: React.FC<HomeProps> = () => {
                     inverted
                 />
                 <Grid.Row>
-                    {sortedPartners.map(partner => (
-                        <Grid.Column key={partner.id}>
-                            <Card style={{ width: '100%' }}>
-                                <Card.Content>
-                                    <Image
-                                        floated='right'
-                                        size='mini'
-                                        src={partner.logo}
-                                    />
-                                    <Card.Header>{partner.name}</Card.Header>
-                                    <Card.Meta
-                                        style={{
-                                            color: partner.partnerLevel
-                                        }}
-                                    >
-                                        {partnerLevels[partner.partnerLevel]}{' '}
-                                        Member
-                                    </Card.Meta>
-                                    <Card.Description>
-                                        <Table color='pink'>
-                                            <Table.Body>
-                                                <Table.Row>
-                                                    <Table.Cell>
-                                                        Given Points
-                                                    </Table.Cell>
-                                                    <Table.Cell>
-                                                        {
-                                                            partner.totalPointsAllocated
-                                                        }
-                                                    </Table.Cell>
-                                                </Table.Row>
-                                                <Table.Row>
-                                                    <Table.Cell>
-                                                        Total Items
-                                                    </Table.Cell>
-                                                    <Table.Cell>
-                                                        {
-                                                            partner.itemsInStock
-                                                                .length
-                                                        }
-                                                    </Table.Cell>
-                                                </Table.Row>
-                                            </Table.Body>
-                                        </Table>
-                                    </Card.Description>
-                                </Card.Content>
-                                <Card.Content extra>
-                                    <Button
-                                        inverted
-                                        color='blue'
-                                        style={{ width: '100%' }}
-                                    >
-                                        Info
-                                    </Button>
-                                </Card.Content>
-                            </Card>
-                        </Grid.Column>
-                    ))}
+                    {sortedPartners.map(
+                        (partner, index) =>
+                            index < 4 && (
+                                <Grid.Column
+                                    key={partner.id}
+                                    style={{ marginBottom: '2em' }}
+                                >
+                                    <Card style={{ width: '100%' }}>
+                                        <Card.Content>
+                                            <Image
+                                                floated='right'
+                                                size='mini'
+                                                src={partner.logo}
+                                            />
+                                            <Card.Header>
+                                                {partner.name}
+                                            </Card.Header>
+                                            <Card.Meta
+                                                style={{
+                                                    color: partner.partnerLevel
+                                                }}
+                                            >
+                                                {
+                                                    partnerLevels[
+                                                        partner.partnerLevel
+                                                    ]
+                                                }{' '}
+                                                Member
+                                            </Card.Meta>
+                                            <Card.Description>
+                                                <Table color='pink'>
+                                                    <Table.Body>
+                                                        <Table.Row>
+                                                            <Table.Cell>
+                                                                Given Points
+                                                            </Table.Cell>
+                                                            <Table.Cell>
+                                                                {
+                                                                    partner.totalPointsAllocated
+                                                                }
+                                                            </Table.Cell>
+                                                        </Table.Row>
+                                                        <Table.Row>
+                                                            <Table.Cell>
+                                                                Total Items
+                                                            </Table.Cell>
+                                                            <Table.Cell>
+                                                                {
+                                                                    partner
+                                                                        .items
+                                                                        .length
+                                                                }
+                                                            </Table.Cell>
+                                                        </Table.Row>
+                                                    </Table.Body>
+                                                </Table>
+                                            </Card.Description>
+                                        </Card.Content>
+                                        <Card.Content extra>
+                                            <Button
+                                                inverted
+                                                color='blue'
+                                                style={{ width: '100%' }}
+                                                onClick={() =>
+                                                    setPartnerEditor(partner)
+                                                }
+                                            >
+                                                Info
+                                            </Button>
+                                        </Card.Content>
+                                    </Card>
+                                </Grid.Column>
+                            )
+                    )}
                 </Grid.Row>
             </Grid>
             <Divider />

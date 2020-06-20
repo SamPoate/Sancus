@@ -13,7 +13,7 @@ import {
     Image,
     Button
 } from 'semantic-ui-react';
-import { IItem } from '../types';
+import { IItem, IPartner } from '../types';
 
 interface ItemProps {}
 
@@ -27,7 +27,9 @@ const Items: React.FC<ItemProps> = () => {
     const [activeItem, setActiveItem] = useState<IItem | null>(null);
 
     let displayedItems: Array<IItem> = [];
-    const userPartner = partners.find(partner => partner.id === user.partnerId);
+    const userPartner = partners.find(
+        (partner: IPartner) => partner.id === user.partnerId
+    );
 
     const submitItem = () => {
         if (id && name && description && points && userPartner) {
@@ -46,9 +48,9 @@ const Items: React.FC<ItemProps> = () => {
             break;
 
         case 'partner':
-            if (userPartner && userPartner.itemsInStock) {
+            if (userPartner && userPartner.items) {
                 displayedItems = items.filter(item =>
-                    userPartner.itemsInStock.includes(item.id)
+                    userPartner.items.includes(item.id)
                 );
             }
             break;
@@ -151,7 +153,7 @@ const Items: React.FC<ItemProps> = () => {
                                             size='mini'
                                             src={
                                                 partners.find(partner =>
-                                                    partner.itemsInStock.includes(
+                                                    partner.items.includes(
                                                         item.id
                                                     )
                                                 )?.logo

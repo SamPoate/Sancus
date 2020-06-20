@@ -4,6 +4,7 @@ import moment from 'moment';
 
 import { AppThunk, AppDispatch } from '../store';
 import { IMember } from '../../types';
+import { members } from '../../fake-database';
 
 interface IAddPoints {
     memberId: string;
@@ -11,20 +12,7 @@ interface IAddPoints {
     partnerId: string;
 }
 
-const initialState: IMember[] = [
-    {
-        id: '123-123-123',
-        name: 'Fred Johnson',
-        description: 'Absolute Legend',
-        points: 0
-    },
-    {
-        id: '123-321-321',
-        name: 'Luke Evans',
-        description: 'Medium Legend',
-        points: 0
-    }
-];
+const initialState: IMember[] = members;
 
 const userSlice = createSlice({
     name: 'members',
