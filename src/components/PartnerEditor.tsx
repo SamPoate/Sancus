@@ -14,7 +14,7 @@ import {
     Statistic,
     Icon
 } from 'semantic-ui-react';
-import { IPartner, IItem } from '../types';
+import { IPartner, IItem, IUser } from '../types';
 import { updatePartner } from '../redux/slices/partnerSlice';
 
 interface PartnerEditorProps {
@@ -43,7 +43,7 @@ export const PartnerEditor: React.FC<PartnerEditorProps> = ({
     closeEditor
 }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
-    const { items } = useSelector((state: RootState) => state);
+    const { items, admin } = useSelector((state: RootState) => state);
 
     const reduxDispatch = useDispatch();
 
@@ -182,6 +182,31 @@ export const PartnerEditor: React.FC<PartnerEditorProps> = ({
                             </Grid.Row>
                         );
                     })}
+                </Grid>
+            </Segment>
+            <Divider />
+            <Header as='h2' content={`${partner.name}'s Users`} inverted />
+            <Segment inverted>
+                <Grid columns={2}>
+                    <Grid.Row>
+                        <Grid.Column>Name</Grid.Column>
+                        <Grid.Column>Join Date</Grid.Column>
+                    </Grid.Row>
+                    {admin.users
+                        .filter((user: IUser) => user.partnerId === state.id)
+                        .map((user: IUser) => {
+                            return (
+                                <Grid.Row key={user.id}>
+                                    <Grid.Column>{user.name}</Grid.Column>
+                                    <Grid.Column>
+                                        {moment(
+                                            user.joinDate,
+                                            'DD-MM-YYYY'
+                                        ).format('Do MMM YYYY')}
+                                    </Grid.Column>
+                                </Grid.Row>
+                            );
+                        })}
                 </Grid>
             </Segment>
         </>

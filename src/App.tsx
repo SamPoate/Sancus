@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { RootState } from './redux/rootReducer';
-import { updateUserList } from './redux/slices/adminSlice';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import { Container, Menu } from 'semantic-ui-react';
 import './sass/main.scss';
@@ -21,34 +20,16 @@ interface AppProps {}
 
 const App: React.StatelessComponent<AppProps> = () => {
     const [activeMenuItem, setActiveMenuItem] = useState<string>('home');
-    const { user, admin } = useSelector((state: RootState) => state);
-    const dispatch = useDispatch();
+    const { user } = useSelector((state: RootState) => state);
 
     let menuItems: Array<string> = [];
 
     //TODO: Move to API call
     const loggedIn: boolean = true;
-    const isAdmin: boolean = true;
-
-    useEffect(() => {
-        if (isAdmin) {
-            if (admin.users.find(u => u.id === user.id)) {
-                return;
-            }
-            dispatch(updateUserList([user]));
-        }
-    }, [isAdmin, admin, dispatch, user]);
 
     switch (user.role) {
         case 'admin':
-            menuItems = [
-                'home',
-                'overview',
-                'members',
-                'partners',
-                'items',
-                'admin'
-            ];
+            menuItems = ['home', 'overview', 'members', 'partners', 'admin'];
             break;
 
         case 'partner':

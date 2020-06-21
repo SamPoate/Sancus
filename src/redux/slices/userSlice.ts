@@ -2,9 +2,10 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { AppThunk, AppDispatch } from '../store';
 import { IUser } from '../../types';
-import { user } from '../../fake-database';
+import { userList } from '../../fake-database';
 
-const initialState: IUser = user;
+const initialState: IUser = userList[0];
+// userList[Math.floor(Math.random() * userList.length)];
 
 const userSlice = createSlice({
     name: 'user',

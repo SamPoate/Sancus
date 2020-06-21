@@ -3,9 +3,11 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { AppThunk, AppDispatch } from '../store';
 import { IAdmin, IUser } from '../../types';
+import { userList, items } from '../../fake-database';
 
 const initialState: IAdmin = {
-    users: []
+    users: userList,
+    items: items
 };
 
 const adminSlice = createSlice({
